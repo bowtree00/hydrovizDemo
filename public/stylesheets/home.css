@@ -1,0 +1,32 @@
+body {
+    background-color: #fff;
+    color: #000;
+    font-family: 'Open Sans', sans-serif, Arial;
+    font-size: 14px;
+    line-height: 1.42857143;
+}
+
+.mg-header {
+    cursor: default;
+    font-size: 1.2rem;
+}
+
+.mg-line1-color {
+  stroke: #4040e8;
+}
+
+path.mg-main-area {
+  opacity: 0.2;
+  stroke: none;
+}
+
+.mg-area1-color {
+    fill: #0000ff;
+}
+
+.mg-markers line {
+    opacity: 1;
+    shape-rendering: auto;
+    stroke: #b3b2b2;
+    stroke-width: 1px;
+}
