@@ -30,3 +30,19 @@ path.mg-main-area {
     stroke: #b3b2b2;
     stroke-width: 1px;
 }
+
+.mg-line6-color {
+    stroke: steelblue;
+}
+
+.mg-area6-color {
+    fill: steelblue;
+}
+
+.mg-hover-line6-color {
+    fill: steelblue;
+}
+
+.mg-line6-legend-color {
+    color: steelblue;
+}

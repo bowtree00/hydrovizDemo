@@ -73,6 +73,17 @@ $(function() {
             $('.series-buttons').append(`<button type="button" class="btn btn-default" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
         }
 
+        // CREATE CHECKBOXES
+        // for (var i = 0; i < y_accessor.length; i++) {
+        //     $('.series-checkboxes')
+        //         .append(`<div class="form-check"><label class="form-check-label"><input type="checkbox" class="form-check-input" data-y_accessor="${y_accessor[i]}" value="">${y_accessor[i]} </label></div>`);
+        // }
+
+        // for (var i = 0; i < y_accessor.length; i++) {
+        //     $('.series-checkboxes')
+        //         .append('<div class="form-check"><label class="form-check-label"><input class="form-check-input" type="checkbox" value="">Option one is this and that&mdash;be sure to include why its great</label></div>');
+        // }
+
         // set x_accessor and y_accessor in chart object
         multiple_with_brushing.x_accessor = x_accessor;
         multiple_with_brushing.y_accessor = y_accessor;
