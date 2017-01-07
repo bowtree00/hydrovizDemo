@@ -22,8 +22,6 @@ $(function() {
         transition_on_update: false
     };
 
-    // d3.json('data/fake_users2.json', function(data) {
-    // d3.json('data/example_data_json.json', function(data) {
     d3.json('data/example_6series_json.json', function(data) {
         data = MG.convert.date(data, 'Date');
 
@@ -70,7 +68,7 @@ $(function() {
         
         // CREATE BUTTONS
         for (var i = 0; i < y_accessor.length; i++) {
-            $('.series-buttons').append(`<button type="button" class="btn btn-outline-primary" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
+            $('.series-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
         }
 
         // CREATE DROPDOWN ITEMS
@@ -78,19 +76,8 @@ $(function() {
             $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${y_accessor[i]}" id="${y_accessor[i]}">${y_accessor[i]}</a>`);
         }
 
-        // ADD LISTENERS
-        for (var i = 0; i < y_accessor.length; i++) {
-
-            $(`#${y_accessor[i]}`).click(function() {
-                // e.preventDefault(); // necessary?
-
-                var selectedText = $(this).text();
-
-                console.log('selectedText', selectedText);
-                // console.log('event', e);
-            });
-        }
-
+        // Create a button for the 'Pick a year'
+        $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${y_accessor[0]}">${y_accessor[0]}</button>`);
 
         // set x_accessor and y_accessor in chart object
         multiple_with_brushing.x_accessor = x_accessor;
@@ -107,24 +94,72 @@ $(function() {
         multiple_with_brushing.data = data;
         MG.data_graphic(multiple_with_brushing);
 
-        // $("#ddmenu").click(function(e) {
-        //     // // Pure JS
-        //     // var selectedVal = this.value;
-        //     // var selectedText = this.options[this.selectedIndex].text;
-
-        //     // jQuery
-        //     // var selectedVal = $(this).data('y_accessor');
-        //     e.preventDefault(); // necessary?
-
-        //     var selectedVal = $(this).val();
-        //     var selectedText = $(this).find('a:selected').text();
-
-        //     console.log('selectedVal', selectedVal);
-        //     console.log('selectedText', selectedText);
-        // });
 
 
+        // ADD LISTENERS
         // NOTE listeners have to be added within this callback since is async
+
+        // Create listeners for 'Pick Year' dropdown menu items
+        for (var i = 0; i < y_accessor.length; i++) {
+
+            $(`#${y_accessor[i]}`).click(function() {
+                // e.preventDefault(); // necessary?
+
+                var selectedText = $(this).text();
+
+                console.log('selectedText', selectedText);
+
+                // Add the selected year to the pickYearButton
+                $('.pickYearButton').text(selectedText);
+                $('.pickYearButton').data('pick_year', selectedText);
+
+            });
+        }
+
+        $('.pickYearButton').click(function(){
+            $(this).toggleClass('active');
+            console.log("HERE")
+
+            var buttonValue = $('.pickYearButton').text();
+            console.log("buttonValue", buttonValue);
+
+            if (y_accessor.includes(buttonValue)) {
+                // console.log("its here!")
+
+                // console.log("y_accessor before", y_accessor);
+                // console.log("color_map before", color_map);
+
+                // Update y_accessor and color_map
+                var index = y_accessor.indexOf(buttonValue);
+
+                if (index > -1) {
+                    y_accessor.splice(index, 1);
+                    color_map.splice(index, 1);
+                }
+                
+                // console.log("y_accessor after", y_accessor);
+                // console.log("color_map after", color_map);
+
+            } else {
+                y_accessor.push(buttonValue);
+                // console.log("y_accessor ADDED BACK", y_accessor);
+                color_map.push(y_order[buttonValue]);
+                // console.log("color_map ADDED BACK", color_map);
+            }
+
+            // NOTE: When adding/removing series, make sure to adjust the color map as well
+            multiple_with_brushing.custom_line_color_map = color_map;
+            multiple_with_brushing.y_accessor = y_accessor;
+            multiple_with_brushing.legend = y_accessor;
+            // console.log("y_accessor after", y_accessor);
+            // console.log("color_map after", color_map);
+            console.log("multiple_with_brushing.legend", multiple_with_brushing.legend)
+            // delete multiple_with_brushing.xax_format;
+            MG.data_graphic(multiple_with_brushing);
+
+        });
+
+
         $('.series-buttons button').click(function() {
             
             $(this).toggleClass('active');
@@ -133,11 +168,12 @@ $(function() {
             console.log('selected_y_accessor', selected_y_accessor);
 
             if (y_accessor.includes(selected_y_accessor)) {
-                console.log("its here!")
+                // console.log("its here!")
 
-                console.log("y_accessor before", y_accessor);
-                console.log("color_map before", color_map);
+                // console.log("y_accessor before", y_accessor);
+                // console.log("color_map before", color_map);
 
+                // Update y_accessor and color_map
                 var index = y_accessor.indexOf(selected_y_accessor);
 
                 if (index > -1) {
@@ -145,24 +181,24 @@ $(function() {
                     color_map.splice(index, 1);
                 }
                 
-                console.log("y_accessor after", y_accessor);
-                console.log("color_map after", color_map);
+                // console.log("y_accessor after", y_accessor);
+                // console.log("color_map after", color_map);
 
             } else {
                 y_accessor.push(selected_y_accessor);
-                console.log("y_accessor ADDED BACK", y_accessor);
+                // console.log("y_accessor ADDED BACK", y_accessor);
                 color_map.push(y_order[selected_y_accessor]);
-                console.log("color_map ADDED BACK", color_map);
+                // console.log("color_map ADDED BACK", color_map);
             }
 
             // NOTE: When adding/removing series, make sure to adjust the color map as well
             multiple_with_brushing.custom_line_color_map = color_map;
             multiple_with_brushing.y_accessor = y_accessor;
-            // multiple_with_brushing.legend = y_accessor;
-            console.log("y_accessor after", y_accessor);
-            console.log("color_map after", color_map);
+            multiple_with_brushing.legend = y_accessor;
+            // console.log("y_accessor after", y_accessor);
+            // console.log("color_map after", color_map);
             console.log("multiple_with_brushing.legend", multiple_with_brushing.legend)
-            delete multiple_with_brushing.xax_format;
+            // delete multiple_with_brushing.xax_format;
             MG.data_graphic(multiple_with_brushing);
             
         });
