@@ -3,17 +3,17 @@ $(function() {
     var globals = {};
 
     var multiple_with_brushing = {
-        title: "Brushing Addon by Dan De Havilland",
+        title: "BC Hydro Unspecified Dam Flow Data",
         description: "Drag the crosshair over the chart to zoom. For further details about this addon, take a look at its <a href='https://github.com/dandehavilland/mg-line-brushing'>GitHub repo</a>.",
         // data: data,
         top: 70,
         width: 750,
-        height: 275,
+        height: 325,
         right: 40,
         // missing_is_hidden: true,
         brushing: true,
         // brushing_history: true,
-        target: '#brushing',
+        target: '#chart-area',
         // legend: ['Line 1','Line 2','Line 3'],
         legend_target: '.legend',
         // x_accessor: 'Date',
@@ -70,8 +70,27 @@ $(function() {
         
         // CREATE BUTTONS
         for (var i = 0; i < y_accessor.length; i++) {
-            $('.series-buttons').append(`<button type="button" class="btn btn-default" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
+            $('.series-buttons').append(`<button type="button" class="btn btn-outline-primary" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
         }
+
+        // CREATE DROPDOWN ITEMS
+        for (var i = 0; i < y_accessor.length; i++) {
+            $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${y_accessor[i]}" id="${y_accessor[i]}">${y_accessor[i]}</a>`);
+        }
+
+        // ADD LISTENERS
+        for (var i = 0; i < y_accessor.length; i++) {
+
+            $(`#${y_accessor[i]}`).click(function() {
+                // e.preventDefault(); // necessary?
+
+                var selectedText = $(this).text();
+
+                console.log('selectedText', selectedText);
+                // console.log('event', e);
+            });
+        }
+
 
         // set x_accessor and y_accessor in chart object
         multiple_with_brushing.x_accessor = x_accessor;
@@ -87,6 +106,22 @@ $(function() {
 
         multiple_with_brushing.data = data;
         MG.data_graphic(multiple_with_brushing);
+
+        // $("#ddmenu").click(function(e) {
+        //     // // Pure JS
+        //     // var selectedVal = this.value;
+        //     // var selectedText = this.options[this.selectedIndex].text;
+
+        //     // jQuery
+        //     // var selectedVal = $(this).data('y_accessor');
+        //     e.preventDefault(); // necessary?
+
+        //     var selectedVal = $(this).val();
+        //     var selectedText = $(this).find('a:selected').text();
+
+        //     console.log('selectedVal', selectedVal);
+        //     console.log('selectedText', selectedText);
+        // });
 
 
         // NOTE listeners have to be added within this callback since is async

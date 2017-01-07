@@ -6,6 +6,32 @@ body {
     line-height: 1.42857143;
 }
 
+h1 {
+    margin: 20px;
+}
+.container {
+  display: flex; /* or inline-flex */
+  justify-content: center;
+}
+
+.controls-area {
+    margin-top: 70px;
+    display: flex;
+    width: 500px;
+}
+
+#chart-area {
+    margin-top: 20px;
+}
+
+.series-dropdown {
+    margin: 4px;
+}
+
+.series-buttons {
+    margin: 4px;
+}
+
 .mg-header {
     cursor: default;
     font-size: 1.2rem;
