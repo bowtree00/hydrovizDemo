@@ -72,3 +72,20 @@ path.mg-main-area {
 .mg-line6-legend-color {
     color: steelblue;
 }
+
+.mg-line7-color {
+    stroke: black;
+    stroke-width: 2;
+}
+
+.mg-area7-color {
+    fill: black;
+}
+
+.mg-hover-line7-color {
+    fill: black;
+}
+
+.mg-line7-legend-color {
+    color: black;
+}

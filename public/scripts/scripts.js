@@ -26,82 +26,7 @@ $(function() {
 
 
     d3.json('data/example_6series_json.json', function(data) {
-        data = MG.convert.date(data, 'Date');
-
-        // ** SET UP THE HTML PAGE AND DATA STRUCTURES **
-        // Get all of the series names from the data
-        // Put them into an array, and create an array with the corresponding series numbers (e.g., 1, 2, 3...)
-        // Create the appropriate number of buttons on the page - one for each series
-        // Put the series names in the data-attributes for each button
-
-        console.log("data", data);
-
-
-        // Set x_accessor (x-axis) and series_list
-        // NOTE: x_accessor is hard coded for now, but change it so the user can select which key is the x-axis
-        var x_accessor = 'Date';
-        var temp = Object.keys(data[0]);
         
-        // console.log('temp', temp);
-
-        // Remove the x_accessor value from the keys list
-        var index = temp.indexOf(x_accessor);
-
-        if (index > -1) {
-            temp.splice(index, 1);
-        }
-        
-        var series_list = [];
-
-        for (var i = 0; i < temp.length; i++) {
-            series_list[i]=parseInt(temp[i]);
-        }
-
-        console.log('series_list', series_list);
-
-
-
-       //SUMMARY STATS - add to the data object
-        for (var i = 0; i < data.length; i++) {
-            var tempArray = []; // Get values from each property of the object
-
-            for(var key in data[i]) {
-
-                // MUST UPDATE THIS CONDITIONAL - is hard-coded to ignore 'x_accessor' (i.e., 'Date'), but it should ignore either a) anything that is not a year (e.g., 1932) or a key, or b) whatever is selected as the x-axis (e.g., if the key 'XYZ' is selected as the x-axis, ignore it)
-
-                if (key!==x_accessor) {
-                    tempArray.push(data[i][key]);
-                }   
-            }
-            // console.log('tempArray', tempArray);
-
-            data[i].min = ss.min(tempArray);
-            data[i].tenth = ss.quantile(tempArray, 0.1);
-            data[i].median = ss.quantile(tempArray, 0.5);
-            data[i].ninetieth = ss.quantile(tempArray, 0.9);
-            data[i].max = ss.max(tempArray);
-            data[i].mean = ss.mean(tempArray);
-
-        }
-
-        // var y_accessor = ['min', 'tenth', 'median', 'ninetieth', 'max', 'mean'];
-
-        // CREATE SERIES OBJECT TO TRACK WHAT SERIES ARE PLOTTED
-        var series_array = [
-            {name: "min", order: 1, visible: true}, 
-            {name: "tenth", order: 2, visible: true},
-            {name: "mean", order: 3, visible: true},
-            {name: "median", order: 4, visible: true},
-            {name: "ninetieth", order: 5, visible: true},
-            {name: "max", order: 6, visible: true},
-            {name: "1931", order: 7, visible: false},
-            ];
-
-        // NOTE for the 'pick year' I'm initializing as 1931, but this should be dynamically initialized depending on the data set
-        // 
-        
-        var y_accessor = [];
-
         function getSeriesNames(series_array) {
             var names = [];
             
@@ -129,7 +54,7 @@ $(function() {
 
         function toggleSeriesVisibility(series_name, series_array) {
             for (var i = 0; i < series_array.length; i++) {
-                console.log('series_array[i] BEFORE', series_array[i]);
+                // console.log('series_array[i] BEFORE', series_array[i]);
 
                 if (series_array[i]['name']==series_name) {
                     console.log(`Found ${series_name}`)
@@ -139,11 +64,77 @@ $(function() {
                      series_array[i]['visible']=true;
                     }   
                 }
-                console.log('series_array[i] AFTER', series_array[i]);
+                // console.log('series_array[i] AFTER', series_array[i]);
             }
             
             return series_array;
         }
+
+        data = MG.convert.date(data, 'Date');
+        console.log("data", data);
+
+        // SET X_ACCESSOR (x-axis) AND YEAR_SERIES_LIST
+        // NOTE: x_accessor is hard coded for now, but change it so the user can select which key is the x-axis. This is also hard coded for all y-series as years - could make this generic so it's agnostic about what information the y-series represent
+        // 
+        var x_accessor = 'Date';
+        var series_keys = Object.keys(data[0]);
+
+        // Remove the x_accessor value from the keys list
+        var index = series_keys.indexOf(x_accessor);
+
+        if (index > -1) {
+            series_keys.splice(index, 1);
+        }
+        
+        var year_series_list = [];
+
+        for (var i = 0; i < series_keys.length; i++) {
+            year_series_list[i]=parseInt(series_keys[i]);
+        }
+
+        console.log('year_series_list', year_series_list);
+
+
+
+        //SUMMARY STATS - add to the data object
+        for (var i = 0; i < data.length; i++) {
+            var tempArray = []; // Get values from each property of the object
+
+            for(var key in data[i]) {
+
+                // MUST UPDATE THIS CONDITIONAL - is hard-coded to ignore 'x_accessor' (i.e., 'Date'), but it should ignore either a) anything that is not a year (e.g., 1932) or a key, or b) whatever is selected as the x-axis (e.g., if the key 'XYZ' is selected as the x-axis, ignore it)
+
+                if (key!==x_accessor) {
+                    tempArray.push(data[i][key]);
+                }   
+            }
+            // console.log('tempArray', tempArray);
+
+            data[i].min = ss.min(tempArray);
+            data[i].tenth = ss.quantile(tempArray, 0.1);
+            data[i].median = ss.quantile(tempArray, 0.5);
+            data[i].ninetieth = ss.quantile(tempArray, 0.9);
+            data[i].max = ss.max(tempArray);
+            data[i].mean = ss.mean(tempArray);
+
+        }
+
+        // CREATE SERIES OBJECT TO TRACK WHAT SERIES ARE PLOTTED
+        var series_array = [
+            {name: "min", order: 1, visible: true}, 
+            {name: "tenth", order: 2, visible: true},
+            {name: "mean", order: 3, visible: true},
+            {name: "median", order: 4, visible: true},
+            {name: "ninetieth", order: 5, visible: true},
+            {name: "max", order: 6, visible: true},
+            {name: "1931", order: 7, visible: false},
+            ];
+
+        // NOTE for the 'pick year' I'm initializing as 1931, but this should be dynamically initialized depending on the data set
+        // 
+        
+        // CREATE AND INITIALIZE Y_ACCESSOR
+        var y_accessor = [];
 
         var y_accessor=getSeriesNames(series_array);
         console.log('y_accessor AT START', y_accessor);
@@ -151,31 +142,25 @@ $(function() {
         var color_map=getSeriesOrders(series_array);
         console.log('color_map AT START', color_map);
 
+        // RENDER CHART ON LOAD
+        // 
+        // set x_accessor and y_accessor in chart object
+        multiple_with_brushing.x_accessor = x_accessor;
+        multiple_with_brushing.y_accessor = y_accessor;
+        multiple_with_brushing.legend = y_accessor;
+        // specify the max number of series (provides a bounds for the custom_line_color_map)
+        multiple_with_brushing.max_data_size = y_accessor.length;
 
-
-
-        // Create object to track all series and their order
-        // var y_order = {};
-        // var color_map = [];
+        console.log("multiple_with_brushing AT START",multiple_with_brushing);
+        console.log("multiple_with_brushing.y_accessor",multiple_with_brushing.y_accessor);
+        globals.data = data;  // DO I NEED THIS?
         
-        // for (var i = 0; i < y_accessor.length; i++) {
-        //     y_order[y_accessor[i]]=i+1;
-        //     color_map[i]=i+1;
-        // }
-
-        // y_order_length=Object.keys(y_order).length;
-        // y_order['pick']=y_order_length+1;
-        // color_map.push(y_order_length+1);
-
-
-
-        // console.log('y_order', y_order);
-        // console.log('color_map', color_map);
-
-        
+        multiple_with_brushing.data = data;
+        MG.data_graphic(multiple_with_brushing);
 
 
         // CREATE BUTTONS
+        // 
         // for (var i = 0; i < y_accessor.length; i++) {
         //     $('.series-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
         // }
@@ -189,35 +174,20 @@ $(function() {
 
 
         // CREATE DROPDOWN ITEMS
-        for (var i = 0; i < series_list.length; i++) {
-            $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${series_list[i]}" id="${series_list[i]}">${series_list[i]}</a>`);
+        // 
+        for (var i = 0; i < year_series_list.length; i++) {
+            $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${year_series_list[i]}" id="${year_series_list[i]}">${year_series_list[i]}</a>`);
         }
 
         // Create a button for the 'Pick a year'
-        $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${series_list[0]}">${series_list[0]}</button>`);
-
-
-        // set x_accessor and y_accessor in chart object
-        multiple_with_brushing.x_accessor = x_accessor;
-        multiple_with_brushing.y_accessor = y_accessor;
-        multiple_with_brushing.legend = y_accessor;
-        // specify the max number of series (provides a bounds for the custom_line_color_map)
-        multiple_with_brushing.max_data_size = y_accessor.length;
-
-        console.log(multiple_with_brushing);
-
-        globals.data = data;  // DO I NEED THIS?
-        
-        multiple_with_brushing.data = data;
-        MG.data_graphic(multiple_with_brushing);
-
+        $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${year_series_list[0]}">${year_series_list[0]}</button>`);
 
         // ADD LISTENERS
-
+        //
         // Create listeners for 'Pick Year' dropdown menu items
         for (var i = 0; i < y_accessor.length; i++) {
 
-            $(`#${series_list[i]}`).click(function() {
+            $(`#${year_series_list[i]}`).click(function() {
                 // e.preventDefault(); // necessary?
 
                 var selectedText = $(this).text();
@@ -240,49 +210,14 @@ $(function() {
             console.log("y_accessor before", y_accessor);
             console.log("color_map before", color_map);
 
-            console.log("series_array BEFORE click", series_array);
+            // console.log("series_array BEFORE click", series_array);
             series_array=toggleSeriesVisibility(buttonValue, series_array);
-            console.log("series_array AFTER click", series_array);
-
-
-            // if (y_accessor.includes(buttonValue)) {
-            //     // Remove series from y_accessor
-            //     console.log("series_array BEFORE click", series_array);
-            //     series_array=makeSeriesInvisible(buttonValue, series_array);
-            //     console.log("series_array AFTER click", series_array);
-
-            //     // 
-            //     // console.log("its here!")
-
-            //     // console.log("y_accessor before", y_accessor);
-            //     // console.log("color_map before", color_map);
-
-            //     // Update y_accessor and color_map
-            //     // var index = y_accessor.indexOf(buttonValue);
-
-            //     // if (index > -1) {
-            //     //     y_accessor.splice(index, 1);
-            //     //     color_map.splice(index, 1);
-            //     // }
-                
-            //     // console.log("y_accessor after", y_accessor);
-            //     // console.log("color_map after", color_map);
-
-            // } else {
-            //     // y_accessor.push(buttonValue);
-            //     // // console.log("y_accessor ADDED BACK", y_accessor);
-            //     // color_map.push(y_order[buttonValue]);
-            //     // // console.log("color_map ADDED BACK", color_map);
-            //     console.log("series_array BEFORE click", series_array);
-            //     series_array=makeSeriesVisible(buttonValue, series_array);
-            //     console.log("series_array AFTER click", series_array);
-            // }
+            // console.log("series_array AFTER click", series_array);
 
             y_accessor=getSeriesNames(series_array);
-            color_map=getSeriesOrders(series_array)
+            color_map=getSeriesOrders(series_array);
             console.log("y_accessor after", y_accessor);
             console.log("color_map after", color_map);
-
 
             // NOTE: When adding/removing series, make sure to adjust the color map as well
             multiple_with_brushing.custom_line_color_map = color_map;
@@ -290,10 +225,13 @@ $(function() {
             multiple_with_brushing.legend = y_accessor;
             multiple_with_brushing.max_data_size = y_accessor.length;
 
-            console.log("multiple_with_brushing.legend", multiple_with_brushing.legend)
+            console.log("multiple_with_brushing", multiple_with_brushing)
+            console.log("multiple_with_brushing.y_accessor",multiple_with_brushing.y_accessor);
+            console.log("multiple_with_brushing.legend",multiple_with_brushing.legend);
+            console.log("multiple_with_brushing.max_data_size",multiple_with_brushing.max_data_size);
+
             delete multiple_with_brushing.xax_format;
             MG.data_graphic(multiple_with_brushing);
-
         });
 
 
@@ -312,40 +250,10 @@ $(function() {
             console.log("series_array AFTER click", series_array);
 
 
-            // console.log('y_order @ selected', y_order[selected_y_accessor]);
-
             y_accessor=getSeriesNames(series_array);
-            color_map=getSeriesOrders(series_array)
+            color_map=getSeriesOrders(series_array);
             console.log("y_accessor after", y_accessor);
             console.log("color_map after", color_map);
-
-
-            // if (y_accessor.includes(selected_y_accessor)) {
-            //     // console.log("its here!")
-
-            //     // console.log("y_accessor before", y_accessor);
-            //     // console.log("color_map before", color_map);
-
-            //     // Update y_accessor and color_map
-            //     var index = y_accessor.indexOf(selected_y_accessor);
-
-            //     if (index > -1) {
-            //         y_accessor.splice(index, 1);
-            //     }
-
-            //     var index_y_order = color_map.indexOf(y_order[selected_y_accessor]);
-
-            //     color_map.splice(index_y_order, 1);
-                
-            //     console.log("y_accessor REMOVED", y_accessor);
-            //     console.log("color_map REMOVED", color_map);
-
-            // } else {
-            //     y_accessor.push(selected_y_accessor);
-            //     console.log("y_accessor ADDED BACK", y_accessor);
-            //     color_map.push(y_order[selected_y_accessor]);
-            //     console.log("color_map ADDED BACK", color_map);
-            // }
 
             // NOTE: When adding/removing series, make sure to adjust the color map as well
             multiple_with_brushing.custom_line_color_map = color_map;
