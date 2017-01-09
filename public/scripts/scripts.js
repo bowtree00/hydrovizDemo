@@ -86,74 +86,95 @@ $(function() {
 
         // var y_accessor = ['min', 'tenth', 'median', 'ninetieth', 'max', 'mean'];
 
-
-        var series_object = [
+        // CREATE SERIES OBJECT TO TRACK WHAT SERIES ARE PLOTTED
+        var series_array = [
             {name: "min", order: 1, visible: true}, 
             {name: "tenth", order: 2, visible: true},
             {name: "mean", order: 3, visible: true},
             {name: "median", order: 4, visible: true},
             {name: "ninetieth", order: 5, visible: true},
             {name: "max", order: 6, visible: true},
-            {name: "pick", order: 7, visible: false},
+            {name: "1931", order: 7, visible: false},
             ];
 
+        // NOTE for the 'pick year' I'm initializing as 1931, but this should be dynamically initialized depending on the data set
+        // 
+        
         var y_accessor = [];
 
-        function getSeriesNames(series_object) {
+        function getSeriesNames(series_array) {
             var names = [];
             
-            for (var i = 0; i < series_object.length; i++) {
-                console.log('series_object[i]["visible"]', series_object[i]["visible"]);
+            for (var i = 0; i < series_array.length; i++) {
+                // console.log('series_array[i]["visible"]', series_array[i]["visible"]);
 
-                if (series_object[i]["visible"]) {
-                    names.push(series_object[i].name);
+                if (series_array[i]["visible"]) {
+                    names.push(series_array[i].name);
                 }
             }
 
             return names;
         }
 
-        function getSeriesOrders(series_object) {
+        function getSeriesOrders(series_array) {
             var orders = [];
 
-            for (var i = 0; i < series_object.length; i++) {
-                if (series_object[i]["visible"]) {
-                    orders.push(series_object[i].order);
+            for (var i = 0; i < series_array.length; i++) {
+                if (series_array[i]["visible"]) {
+                    orders.push(series_array[i].order);
                 }
             }
-
             return orders;
         }
 
+        function toggleSeriesVisibility(series_name, series_array) {
+            for (var i = 0; i < series_array.length; i++) {
+                console.log('series_array[i] BEFORE', series_array[i]);
 
-        var y_accessor=getSeriesNames(series_object);
-        console.log('y_accessor', y_accessor);
+                if (series_array[i]['name']==series_name) {
+                    console.log(`Found ${series_name}`)
+                    if (series_array[i]['visible']==true){
+                        series_array[i]['visible']=false;
+                    } else {
+                     series_array[i]['visible']=true;
+                    }   
+                }
+                console.log('series_array[i] AFTER', series_array[i]);
+            }
+            
+            return series_array;
+        }
 
-        var color_map=getSeriesOrders(series_object);
-        console.log('color_map', color_map);
+        var y_accessor=getSeriesNames(series_array);
+        console.log('y_accessor AT START', y_accessor);
+
+        var color_map=getSeriesOrders(series_array);
+        console.log('color_map AT START', color_map);
 
 
 
 
         // Create object to track all series and their order
-        var y_order = {};
-        var color_map = [];
+        // var y_order = {};
+        // var color_map = [];
         
-        for (var i = 0; i < y_accessor.length; i++) {
-            y_order[y_accessor[i]]=i+1;
-            color_map[i]=i+1;
-        }
+        // for (var i = 0; i < y_accessor.length; i++) {
+        //     y_order[y_accessor[i]]=i+1;
+        //     color_map[i]=i+1;
+        // }
 
-        y_order_length=Object.keys(y_order).length;
-        y_order['pick']=y_order_length+1;
-        color_map.push(y_order_length+1);
+        // y_order_length=Object.keys(y_order).length;
+        // y_order['pick']=y_order_length+1;
+        // color_map.push(y_order_length+1);
 
 
 
-        console.log('y_order', y_order);
-        console.log('color_map', color_map);
+        // console.log('y_order', y_order);
+        // console.log('color_map', color_map);
 
         
+
+
         // CREATE BUTTONS
         // for (var i = 0; i < y_accessor.length; i++) {
         //     $('.series-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="${y_accessor[i]}">${y_accessor[i]}</button>`);
@@ -175,25 +196,23 @@ $(function() {
         // Create a button for the 'Pick a year'
         $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${series_list[0]}">${series_list[0]}</button>`);
 
+
         // set x_accessor and y_accessor in chart object
         multiple_with_brushing.x_accessor = x_accessor;
         multiple_with_brushing.y_accessor = y_accessor;
         multiple_with_brushing.legend = y_accessor;
-
-        console.log(multiple_with_brushing);
-
-        globals.data = data;
-        
         // specify the max number of series (provides a bounds for the custom_line_color_map)
         multiple_with_brushing.max_data_size = y_accessor.length;
 
+        console.log(multiple_with_brushing);
+
+        globals.data = data;  // DO I NEED THIS?
+        
         multiple_with_brushing.data = data;
         MG.data_graphic(multiple_with_brushing);
 
 
-
         // ADD LISTENERS
-        // NOTE listeners have to be added within this callback since is async
 
         // Create listeners for 'Pick Year' dropdown menu items
         for (var i = 0; i < y_accessor.length; i++) {
@@ -218,37 +237,59 @@ $(function() {
             var buttonValue = $('.pickYearButton').text();
             console.log("buttonValue", buttonValue);
 
-            if (y_accessor.includes(buttonValue)) {
-                // console.log("its here!")
+            console.log("y_accessor before", y_accessor);
+            console.log("color_map before", color_map);
 
-                // console.log("y_accessor before", y_accessor);
-                // console.log("color_map before", color_map);
+            console.log("series_array BEFORE click", series_array);
+            series_array=toggleSeriesVisibility(buttonValue, series_array);
+            console.log("series_array AFTER click", series_array);
 
-                // Update y_accessor and color_map
-                var index = y_accessor.indexOf(buttonValue);
 
-                if (index > -1) {
-                    y_accessor.splice(index, 1);
-                    color_map.splice(index, 1);
-                }
+            // if (y_accessor.includes(buttonValue)) {
+            //     // Remove series from y_accessor
+            //     console.log("series_array BEFORE click", series_array);
+            //     series_array=makeSeriesInvisible(buttonValue, series_array);
+            //     console.log("series_array AFTER click", series_array);
+
+            //     // 
+            //     // console.log("its here!")
+
+            //     // console.log("y_accessor before", y_accessor);
+            //     // console.log("color_map before", color_map);
+
+            //     // Update y_accessor and color_map
+            //     // var index = y_accessor.indexOf(buttonValue);
+
+            //     // if (index > -1) {
+            //     //     y_accessor.splice(index, 1);
+            //     //     color_map.splice(index, 1);
+            //     // }
                 
-                // console.log("y_accessor after", y_accessor);
-                // console.log("color_map after", color_map);
+            //     // console.log("y_accessor after", y_accessor);
+            //     // console.log("color_map after", color_map);
 
-            } else {
-                y_accessor.push(buttonValue);
-                // console.log("y_accessor ADDED BACK", y_accessor);
-                color_map.push(y_order[buttonValue]);
-                // console.log("color_map ADDED BACK", color_map);
-            }
+            // } else {
+            //     // y_accessor.push(buttonValue);
+            //     // // console.log("y_accessor ADDED BACK", y_accessor);
+            //     // color_map.push(y_order[buttonValue]);
+            //     // // console.log("color_map ADDED BACK", color_map);
+            //     console.log("series_array BEFORE click", series_array);
+            //     series_array=makeSeriesVisible(buttonValue, series_array);
+            //     console.log("series_array AFTER click", series_array);
+            // }
+
+            y_accessor=getSeriesNames(series_array);
+            color_map=getSeriesOrders(series_array)
+            console.log("y_accessor after", y_accessor);
+            console.log("color_map after", color_map);
+
 
             // NOTE: When adding/removing series, make sure to adjust the color map as well
             multiple_with_brushing.custom_line_color_map = color_map;
             multiple_with_brushing.y_accessor = y_accessor;
             multiple_with_brushing.legend = y_accessor;
             multiple_with_brushing.max_data_size = y_accessor.length;
-            console.log("y_accessor after", y_accessor);
-            console.log("color_map after", color_map);
+
             console.log("multiple_with_brushing.legend", multiple_with_brushing.legend)
             delete multiple_with_brushing.xax_format;
             MG.data_graphic(multiple_with_brushing);
@@ -257,39 +298,54 @@ $(function() {
 
 
         $('.series-buttons button').click(function() {
-            
+           
             $(this).toggleClass('active');
 
             var selected_y_accessor = $(this).data('y_accessor');
             console.log('selected_y_accessor', selected_y_accessor);
-            console.log('y_order @ selected', y_order[selected_y_accessor]);
 
-            if (y_accessor.includes(selected_y_accessor)) {
-                // console.log("its here!")
+            console.log("y_accessor before", y_accessor);
+            console.log("color_map before", color_map);
 
-                // console.log("y_accessor before", y_accessor);
-                // console.log("color_map before", color_map);
+            console.log("series_array BEFORE click", series_array);
+            series_array=toggleSeriesVisibility(selected_y_accessor, series_array);
+            console.log("series_array AFTER click", series_array);
 
-                // Update y_accessor and color_map
-                var index = y_accessor.indexOf(selected_y_accessor);
 
-                if (index > -1) {
-                    y_accessor.splice(index, 1);
-                }
+            // console.log('y_order @ selected', y_order[selected_y_accessor]);
 
-                var index_y_order = color_map.indexOf(y_order[selected_y_accessor]);
+            y_accessor=getSeriesNames(series_array);
+            color_map=getSeriesOrders(series_array)
+            console.log("y_accessor after", y_accessor);
+            console.log("color_map after", color_map);
 
-                color_map.splice(index_y_order, 1);
+
+            // if (y_accessor.includes(selected_y_accessor)) {
+            //     // console.log("its here!")
+
+            //     // console.log("y_accessor before", y_accessor);
+            //     // console.log("color_map before", color_map);
+
+            //     // Update y_accessor and color_map
+            //     var index = y_accessor.indexOf(selected_y_accessor);
+
+            //     if (index > -1) {
+            //         y_accessor.splice(index, 1);
+            //     }
+
+            //     var index_y_order = color_map.indexOf(y_order[selected_y_accessor]);
+
+            //     color_map.splice(index_y_order, 1);
                 
-                console.log("y_accessor REMOVED", y_accessor);
-                console.log("color_map REMOVED", color_map);
+            //     console.log("y_accessor REMOVED", y_accessor);
+            //     console.log("color_map REMOVED", color_map);
 
-            } else {
-                y_accessor.push(selected_y_accessor);
-                console.log("y_accessor ADDED BACK", y_accessor);
-                color_map.push(y_order[selected_y_accessor]);
-                console.log("color_map ADDED BACK", color_map);
-            }
+            // } else {
+            //     y_accessor.push(selected_y_accessor);
+            //     console.log("y_accessor ADDED BACK", y_accessor);
+            //     color_map.push(y_order[selected_y_accessor]);
+            //     console.log("color_map ADDED BACK", color_map);
+            // }
 
             // NOTE: When adding/removing series, make sure to adjust the color map as well
             multiple_with_brushing.custom_line_color_map = color_map;
@@ -301,55 +357,12 @@ $(function() {
             // console.log("color_map after", color_map);
             console.log("multiple_with_brushing.legend", multiple_with_brushing.legend)
             delete multiple_with_brushing.xax_format;
-
-
-
             MG.data_graphic(multiple_with_brushing);
             
         });
         console.log("data", data);
     });
 
-
-
-    // $('.split-by-controls button').click(function() {
-    //     var new_y_accessor = $(this).data('y_accessor');
-
-    //     console.log('HERE!');
-    //     // create an array of objects to keep track of series names and their order
-    //     // [ {
-    //     //      name: "1932",
-    //     //      order: 1
-    //     //     },
-    //     //     {
-    //     //      name: "1933",
-    //     //      order: 2
-    //     //     } 
-    //     //  ]
-    //     // create a separate y_accessor array to keep track of which series to show/hide (since the y_accessor in the multiple_with_brushing object is a proprietary data format)
-    //     // when button is pushed, check if the selected series is in the array - if it is, splice it out (and splice out the series number from the series array). If it's not, add it
-    //     // 
-    //     // Plot the new graph
-
-    //     // multiple_with_brushing.y_accessor = ['1932','1933'];
-
-    //     // NOTE: When adding/removing series, make sure to adjust the color map as well
-    //     // multiple_with_brushing.custom_line_color_map = [2,3];
-
-    //     // specify the max number of series (provides a bounds for the custom_line_color_map)
-    //     // multiple_with_brushing.max_data_size = 3;
-
-
-
-    //     // change button state
-    //     // $(this).addClass('active').siblings().removeClass('active');
-
-    //     $(this).toggleClass('active');
-
-    //     // update data
-    //     delete multiple_with_brushing.xax_format;
-    //     MG.data_graphic(multiple_with_brushing);
-    // });
 
 })
 
