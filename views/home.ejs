@@ -34,29 +34,34 @@
       <div id='chart-area'></div>
 
       <div class='controls-area'>
-        <div class="altSelectedMessage"></div>
-        <div class="btn-group btn-group-sm stats-dropdown" role="group">
-          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-            Pick an Alternative
-          </button>
-          <div id="pickAltMenu" class="dropdown-menu open">
-          <!-- Dropdown menu items dynamically added here -->
+        <div class="alt-selected-message"></div>
+        <div class="buttons-area">
+      
+          <div class='btn-group-vertical btn-group-vertical-sm text-center stats-buttons'>
           </div>
-        </div>        
+          
+          <div class="dropdown-area">
+            <div class="btn-group btn-group-sm stats-dropdown" role="group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Pick an Alternative
+              </button>
+              <div id="pickAltMenu" class="dropdown-menu open">
+              <!-- Dropdown menu items dynamically added here -->
+              </div>
+            </div>  
 
-        <div class='btn-group-vertical btn-group-vertical-sm text-center stats-buttons'>
-        </div>
-        
-        <div class="btn-group btn-group-sm stats-dropdown" role="group">
-          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-            Pick a Year
-          </button>
-          <div id="pickYearMenu" class="dropdown-menu open">
-          <!-- Dropdown menu items dynamically added here -->
+            <div class="btn-group btn-group-sm stats-dropdown" role="group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Pick a Year
+              </button>
+              <div id="pickYearMenu" class="dropdown-menu open scrollable-menu">
+              <!-- Dropdown menu items dynamically added here -->
+              </div>
+              <div class='pickYearButtonContainer'></div>
+            </div>
           </div>
-          <div class='pickYearButtonContainer'></div>
-        </div>
 
+        </div>
 
       </div>
 

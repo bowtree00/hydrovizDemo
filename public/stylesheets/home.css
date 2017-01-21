@@ -9,6 +9,23 @@ body {
 h1 {
     margin: 20px;
 }
+
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}
+
+.alt-selected-message {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.buttons-area {
+    display: flex;
+}
+
 .container {
   display: flex; /* or inline-flex */
   justify-content: center;
@@ -17,19 +34,18 @@ h1 {
 .controls-area {
     margin-top: 70px;
     display: flex;
+    flex-direction: column;
     width: 500px;
 }
 
+
+/*.dropdown-area {
+    display: flex;
+    justify-content: column;
+}*/
+
 #chart-area {
     margin-top: 20px;
-}
-
-.stats-dropdown {
-    margin: 4px;
-}
-
-.stats-buttons {
-    margin: 4px;
 }
 
 .mg-header {
@@ -88,4 +104,12 @@ path.mg-main-area {
 
 .mg-line7-legend-color {
     color: black;
+}
+
+.stats-dropdown {
+    margin: 4px;
+}
+
+.stats-buttons {
+    margin: 4px;
 }
