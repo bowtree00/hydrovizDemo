@@ -29,6 +29,8 @@ $(function() {
     //   age: 30
     // })
 
+    var TEST_INCREMENTER = 1;
+    var TEST_INCREMENTER_STATS = 1;
 
     console.log('multiple_with_brushing JUST DECLARED', multiple_with_brushing);
 
@@ -136,9 +138,54 @@ $(function() {
         return dataCopy;
     }
 
+    var alternatives = [
+        {
+            name: 'Alternative 1',
+            id: 'Alt1',
+            filename:'data/location1_alt1_JSON.json'
+        }, 
+        {
+            name: 'Alternative 2',
+            id: 'Alt2',
+            filename: 'data/location1_alt2_JSON.json'
+        }, 
+        {
+            name: 'Alternative 3',
+            id: 'Alt3',
+            filename: 'data/location1_alt3_JSON.json'
+        }
+        ];
 
-    d3.json('data/example_6series_json.json', function(data) {
-        
+    var currentFilename = alternatives[0]['filename'];
+
+    // var filenames = {
+    //     'data/location1_alt1_JSON.json', 'data/location1_alt2_JSON.json', 'data/location1_alt3_JSON.json'];
+
+
+    // Dropdown for 'Pick Alternative'
+    for (var i = 0; i < alternatives.length; i++) {
+        $('#pickAltMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${alternatives[i]['filename']}" id="${alternatives[i]['id']}">${alternatives[i]['name']}</a>`);
+    }
+
+    // Create listeners for 'Pick Alternative' dropdown menu items
+    
+    for (var i = 0; i < alternatives.length; i++) {
+        $(`#${alternatives[i]["id"]}`).click(function() {
+            var selectedText = $(this).text();
+            var selectedFilename = $(this).data('y_accessor');
+
+            console.log('selectedText', selectedText);
+
+            // Add the selected year to the pickYearButton
+            $('.altSelectedMessage').text(selectedText);
+
+        })
+    }
+
+
+    // d3.json('data/example_6series_json.json', function(data) {
+    d3.json(currentFilename, function(data) {
+   
         console.log("data @ START", data);
 
         data = MG.convert.date(data, 'Date');
@@ -193,6 +240,8 @@ $(function() {
             data: dataWithStats
         })
 
+        // TEST_INCREMENTER += 1;
+
         console.log("newChart.y_accessor",newChart.y_accessor);
         
         console.log("newChart.data",newChart.data);
@@ -219,10 +268,13 @@ $(function() {
 
 
         // CREATE DROPDOWN ITEMS
-        // 
+
+
+        // Dropdown for 'Pick Year'
         for (var i = 0; i < year_series_list.length; i++) {
-            $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${year_series_list[i]}" id="${year_series_list[i]}">${year_series_list[i]}</a>`);
+            $('#pickYearMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${year_series_list[i]}" id="${year_series_list[i]}">${year_series_list[i]}</a>`);
         }
+
 
         // Create a button for the 'Pick a year'
         $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${year_series_list[0]}">${year_series_list[0]}</button>`);
@@ -231,7 +283,8 @@ $(function() {
         // CHANGE 'DATA' IN ALL OF THE FOLLOWING TO 'dataWithStats'!!!!
 
         // ADD LISTENERS
-        //
+
+
         // Create listeners for 'Pick Year' dropdown menu items
         for (var i = 0; i < y_accessor.length; i++) {
 
@@ -276,9 +329,11 @@ $(function() {
                 legend: y_accessor,
                 custom_line_color_map: color_map,
                 max_data_size: y_accessor.length, 
-                data: dataWithStats
+                data: dataWithStats,
+                title: `INCREMENT:${TEST_INCREMENTER}`
             })
 
+            TEST_INCREMENTER += 1;
 
             // multiple_with_brushing.custom_line_color_map = color_map;
             // multiple_with_brushing.y_accessor = y_accessor;
@@ -292,49 +347,69 @@ $(function() {
             console.log("newChart_PickYear.data PICKYEAR",newChart_PickYear.data);
             delete newChart_PickYear.xax_format;
             MG.data_graphic(newChart_PickYear);
-            delete newChart_PickYear;
+            // delete newChart_PickYear;
+            newChart_PickYear = {};
             console.log('newChart_PickYear AFTER DELETE', newChart_PickYear);
+            
         });
 
 
-        // $('.stats-buttons button').click(function() {
+        $('.stats-buttons button').click(function() {
            
-        //     $(this).toggleClass('active');
+            $(this).toggleClass('active');
 
-        //     var selected_y_accessor = $(this).data('y_accessor');
-        //     console.log('selected_y_accessor', selected_y_accessor);
+            var selected_y_accessor = $(this).data('y_accessor');
+            console.log('selected_y_accessor', selected_y_accessor);
 
-        //     console.log("y_accessor before", y_accessor);
-        //     console.log("color_map before", color_map);
+            console.log("y_accessor before", y_accessor);
+            console.log("color_map before", color_map);
 
-        //     console.log("series_array BEFORE click", series_array);
-        //     series_array=toggleSeriesVisibility(selected_y_accessor, series_array);
-        //     console.log("series_array AFTER click", series_array);
+            console.log("series_array BEFORE click", series_array);
+
+            series_array=toggleSeriesVisibility(selected_y_accessor, series_array);
+
+            console.log("series_array AFTER click", series_array);
 
 
-        //     y_accessor=getSeriesNames(series_array);
-        //     color_map=getSeriesOrders(series_array);
-        //     console.log("y_accessor after", y_accessor);
-        //     console.log("color_map after", color_map);
+            y_accessor=getSeriesNames(series_array);
+            color_map=getSeriesOrders(series_array);
+            console.log("y_accessor after", y_accessor);
+            console.log("color_map after", color_map);
 
-        //     // NOTE: When adding/removing series, make sure to adjust the color map as well
-        //     multiple_with_brushing.custom_line_color_map = color_map;
-        //     multiple_with_brushing.y_accessor = y_accessor;
-        //     multiple_with_brushing.legend = y_accessor;
-        //     multiple_with_brushing.max_data_size = y_accessor.length;
 
-        //     console.log("multiple_with_brushing STATS", multiple_with_brushing)
-        //     console.log("multiple_with_brushing.y_accessor STATS",multiple_with_brushing.y_accessor);
-        //     console.log("multiple_with_brushing.legend STATS",multiple_with_brushing.legend);
-        //     console.log("multiple_with_brushing.max_data_size STATS",multiple_with_brushing.max_data_size);
-        //     console.log("multiple_with_brushing.data STATS",multiple_with_brushing.data);
 
-        //     delete multiple_with_brushing.xax_format;
-        //     MG.data_graphic(multiple_with_brushing);
-            
-        // });
+            // NOTE: When adding/removing series, make sure to adjust the color map as well
+            // multiple_with_brushing.custom_line_color_map = color_map;
+            // multiple_with_brushing.y_accessor = y_accessor;
+            // multiple_with_brushing.legend = y_accessor;
+            // multiple_with_brushing.max_data_size = y_accessor.length;
 
-        // console.log("data @ END", data);
+            var newChart_Stats = Object.assign({}, multiple_with_brushing, {
+                x_accessor: x_accessor,
+                y_accessor: y_accessor,
+                legend: y_accessor,
+                custom_line_color_map: color_map,
+                max_data_size: y_accessor.length, 
+                data: dataWithStats,
+                title: `STATS INCREMENT:${TEST_INCREMENTER_STATS}`
+            })
+
+            TEST_INCREMENTER_STATS += 1;
+
+            console.log("newChart_Stats", newChart_Stats)
+            console.log("newChart_Stats.y_accessor",newChart_Stats.y_accessor);
+            console.log("newChart_Stats.legend",newChart_Stats.legend);
+            console.log("newChart_Stats.max_data_size",newChart_Stats.max_data_size);
+            console.log("newChart_Stats.data",newChart_Stats.data);
+
+            delete newChart_Stats.xax_format;
+            MG.data_graphic(newChart_Stats);
+            // delete newChart_Stats;
+            newChart_Stats = {};
+            console.log('newChart_Stats AFTER DELETE', newChart_Stats);           
+        });
+
+        console.log("data @ END", data);
     });
 
 })

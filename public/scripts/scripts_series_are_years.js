@@ -83,7 +83,7 @@ $(function() {
 
         // CREATE DROPDOWN ITEMS
         for (var i = 0; i < y_accessor.length; i++) {
-            $('#ddmenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${y_accessor[i]}" id="${y_accessor[i]}">${y_accessor[i]}</a>`);
+            $('#pickYearMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${y_accessor[i]}" id="${y_accessor[i]}">${y_accessor[i]}</a>`);
         }
 
         // Create a button for the 'Pick a year'
