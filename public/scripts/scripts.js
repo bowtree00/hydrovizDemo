@@ -29,15 +29,10 @@ $(function() {
     //   age: 30
     // })
 
-    var TEST_INCREMENTER = 1;
-    var TEST_INCREMENTER_STATS = 1;
-
-    console.log('multiple_with_brushing JUST DECLARED', multiple_with_brushing);
 
     // CREATE SERIES OBJECT TO TRACK WHAT SERIES ARE PLOTTED
     // 
-    // NOTE for the 'pick year' I'm initializing as 1931, but this should be dynamically initialized depending on the data set
-    // 
+
     var series_array = [
         {name: "min", order: 1, visible: true}, 
         {name: "tenth", order: 2, visible: true},
@@ -163,49 +158,22 @@ $(function() {
         {
             name: 'Alternative 1',
             id: 'Alt1',
-            filename:'data/location1_alt1_JSON.json'
+            filename:'data/loc1Alt1.json'
         }, 
         {
             name: 'Alternative 2',
             id: 'Alt2',
-            filename: 'data/location1_alt2_JSON.json'
+            filename: 'data/loc1Alt2.json'
         }, 
         {
             name: 'Alternative 3',
             id: 'Alt3',
-            filename: 'data/location1_alt3_JSON.json'
+            filename: 'data/loc1Alt3.json'
         }
         ];
 
 
-    // Create stats buttons
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="max">Max</button>`);
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="ninetieth">90th</button>`);
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="median">50th</button>`);
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="mean">Mean</button>`);
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="tenth">10th</button>`);
-    $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="min">Min</button>`);
 
-    // Dropdown button for 'Pick Alternative'
-    for (var i = 0; i < alternatives.length; i++) {
-        $('#pickAltMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${alternatives[i]['filename']}" id="${alternatives[i]['id']}">${alternatives[i]['name']}</a>`);
-    }
-
-    // Create listeners for 'Pick Alternative' dropdown menu items
-    for (var i = 0; i < alternatives.length; i++) {
-        $(`#${alternatives[i]["id"]}`).click(function() {
-            var selectedText = $(this).text();
-            var selectedFilename = $(this).data('y_accessor');
-
-            console.log('selectedText', selectedText);
-
-            // Add the selected year to the pickYearButton
-            $('.alt-selected-message').text(selectedText);
-
-            // Replot when switching alternatives
-            d3.json(selectedFilename, plotData);
-        })
-    }
 
     // Sets to the first alternative for the first iteration
     var currentFilename = alternatives[0]['filename'];
@@ -218,35 +186,56 @@ $(function() {
     // DEFINE BUTTONS AND BEHAVIOURS
     d3.json(currentFilename, function(data) {
         
+        // Create stats buttons
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="max">Max</button>`);
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="ninetieth">90th</button>`);
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="median">50th</button>`);
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="mean">Mean</button>`);
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="tenth">10th</button>`);
+        $('.stats-buttons').append(`<button type="button" class="btn btn-outline-primary active" data-y_accessor="min">Min</button>`);
+
+        // Dropdown button for 'Pick Alternative'
+        for (var i = 0; i < alternatives.length; i++) {
+            $('#pickAltMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${alternatives[i]['filename']}" id="${alternatives[i]['id']}">${alternatives[i]['name']}</a>`);
+        }
+
         console.log('***** INITIALIZING BUTTONS *****')
         var year_series_list = getYearSeriesList(data[0], x_accessor);
         // NOTE: x_accessor is hard coded for now, but change it so the user can select which key is the x-axis. This is also hard coded for all y-series as years - could make this generic so it's agnostic about what information the y-series represent
         // 
         // on initialize, change year to first year in the series
         changeYear(`${year_series_list[0]}`, series_array);
-        
-        // CREATE DROPDOWN ITEMS
-        // Create 'Pick Year' dropdown
+ 
+
+         // LISTENER for 'Pick Alternative' dropdown menu items
+        for (var i = 0; i < alternatives.length; i++) {
+            $(`#${alternatives[i]["id"]}`).click(function() {
+                var selectedText = $(this).text();
+                var selectedFilename = $(this).data('y_accessor');
+
+                console.log('selectedText', selectedText);
+                console.log("series_array", series_array);
+
+                // Add the selected year to the pickYearButton
+                $('.alt-selected-message').text(selectedText);
+
+                currentFilename = selectedFilename;
+
+                // Replot when switching alternatives
+                d3.json(selectedFilename, plotData);
+            })
+        }       
+
+        // CREATE 'Pick Year' DROPDOWN
         for (var i = 0; i < year_series_list.length; i++) {
             $('#pickYearMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${year_series_list[i]}" id="${year_series_list[i]}">${year_series_list[i]}</a>`);
         }
 
-        // Create a 'Pick a year' toggle button
+        // CREATE 'Pick a year' TOGGLE button
         $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${year_series_list[0]}">${year_series_list[0]}</button>`);
 
 
-        // // CREATE AND INITIALIZE Y_ACCESSOR
-        // var y_accessor = [];
-
-        // var y_accessor=getSeriesNames(series_array);
-        // console.log('y_accessor TEST *********', y_accessor);
-
-        // var color_map=getSeriesOrders(series_array);
-        // console.log('color_map TEST *********', color_map);
-
-
-
-        // LISTENERS for 'Pick Year' dropdown menu items
+        // LISTENERS for 'Pick Year' DROPDOWN menu items
         for (var i = 0; i < year_series_list.length; i++) {
 
             $(`#${year_series_list[i]}`).click(function() {
@@ -274,7 +263,7 @@ $(function() {
             });
         }
 
-        // LISTENER FOR pickYearButton
+        // LISTENER FOR 'Pick Year' TOGGLE button
         $('.pickYearButton').click(function(){
             $(this).toggleClass('active');
 
@@ -282,7 +271,8 @@ $(function() {
             // series_array=toggleSeriesVisibility(buttonValue, series_array);
             
             series_array=toggleSeriesVisibility('pickYear', series_array);
-            
+            console.log("/////HERE/////");
+            console.log("series_array", series_array);
             d3.json(currentFilename, plotData);
 
         });
@@ -311,7 +301,8 @@ $(function() {
         data = MG.convert.date(data, 'Date');
 
         dataWithStats = calcSummaryStats(data, x_accessor);
-        
+        console.log("dataWithStats", dataWithStats);
+
         // CREATE AND INITIALIZE Y_ACCESSOR
         var y_accessor = [];
 
@@ -321,7 +312,11 @@ $(function() {
         var color_map=getSeriesOrders(series_array);
         console.log('color_map AT START', color_map);
 
-        newChart = Object.assign({}, multiple_with_brushing, {
+        console.log('multiple_with_brushing', multiple_with_brushing);
+        
+        console.log('AA) newChart:', newChart);
+
+        var newChart = Object.assign({}, multiple_with_brushing, {
             x_accessor: x_accessor,
             y_accessor: y_accessor,
             legend: y_accessor,
@@ -332,12 +327,18 @@ $(function() {
 
         console.log("newChart.y_accessor",newChart.y_accessor);
         
-        delete newChart.xax_format;
+        console.log('A) newChart:', newChart);
+
+        // delete newChart.xax_format;
         MG.data_graphic(newChart);
+
+        console.log('B) newChart["data"]:', newChart['data']);
+        
 
     }
 
 
+    // Plot chart when page first loads
     d3.json(currentFilename, plotData);
 
 })
