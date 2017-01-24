@@ -39,10 +39,10 @@ h1 {
 }
 
 
-/*.dropdown-area {
+.dropdown-area {
     display: flex;
     justify-content: column;
-}*/
+}
 
 #chart-area {
     margin-top: 20px;

@@ -45,7 +45,7 @@ $(function() {
         {name: "median", order: 4, visible: true},
         {name: "ninetieth", order: 5, visible: true},
         {name: "max", order: 6, visible: true},
-        {name: "1931", order: 7, visible: false},
+        {name: "pickYear", order: 7, visible: false, year: '1900'}
         ];
 
     function getSeriesNames(series_array) {
@@ -55,7 +55,12 @@ $(function() {
             // console.log('series_array[i]["visible"]', series_array[i]["visible"]);
 
             if (series_array[i]["visible"]) {
-                names.push(series_array[i].name);
+                if (series_array[i]['name']=='pickYear') {
+                    // names.push(`Year:${series_array[i].year}`);
+                    names.push(series_array[i].year);
+                } else {
+                    names.push(series_array[i].name);
+                }
             }
         }
 
@@ -89,6 +94,15 @@ $(function() {
         }
         
         return series_array;
+    }
+
+    function changeYear(newYear, series_array) {
+        for (var i = 0; i < series_array.length; i++) {
+            if (series_array[i]['name']=='pickYear') {
+                series_array[i]['year']=newYear
+            }
+        }
+        console.log('YEAR CHANGED', series_array)
     }
 
     function getYearSeriesList(dataObject, x_accessor) {
@@ -187,6 +201,8 @@ $(function() {
 
             // Add the selected year to the pickYearButton
             $('.alt-selected-message').text(selectedText);
+
+            // Replot when switching alternatives
             d3.json(selectedFilename, plotData);
         })
     }
@@ -198,36 +214,42 @@ $(function() {
    
     var x_accessor = 'Date';
 
-    // Define 'pick year' buttons and behaviours
+
+    // DEFINE BUTTONS AND BEHAVIOURS
     d3.json(currentFilename, function(data) {
         
+        console.log('***** INITIALIZING BUTTONS *****')
         var year_series_list = getYearSeriesList(data[0], x_accessor);
         // NOTE: x_accessor is hard coded for now, but change it so the user can select which key is the x-axis. This is also hard coded for all y-series as years - could make this generic so it's agnostic about what information the y-series represent
         // 
+        // on initialize, change year to first year in the series
+        changeYear(`${year_series_list[0]}`, series_array);
         
         // CREATE DROPDOWN ITEMS
-        // Create dropdown for 'Pick Year'
+        // Create 'Pick Year' dropdown
         for (var i = 0; i < year_series_list.length; i++) {
             $('#pickYearMenu').append(`<a class="dropdown-item" href="#" data-y_accessor="${year_series_list[i]}" id="${year_series_list[i]}">${year_series_list[i]}</a>`);
         }
 
-        // Create a button for the 'Pick a year'
+        // Create a 'Pick a year' toggle button
         $('.pickYearButtonContainer').append(`<button type="button" class="btn btn-outline-primary pickYearButton" data-pick_year="${year_series_list[0]}">${year_series_list[0]}</button>`);
 
-        // CREATE AND INITIALIZE Y_ACCESSOR
-        var y_accessor = [];
 
-        var y_accessor=getSeriesNames(series_array);
-        console.log('y_accessor TEST *********', y_accessor);
+        // // CREATE AND INITIALIZE Y_ACCESSOR
+        // var y_accessor = [];
 
-        var color_map=getSeriesOrders(series_array);
-        console.log('color_map TEST *********', color_map);
+        // var y_accessor=getSeriesNames(series_array);
+        // console.log('y_accessor TEST *********', y_accessor);
 
-        // Create listeners for 'Pick Year' dropdown menu items
+        // var color_map=getSeriesOrders(series_array);
+        // console.log('color_map TEST *********', color_map);
+
+
+
+        // LISTENERS for 'Pick Year' dropdown menu items
         for (var i = 0; i < year_series_list.length; i++) {
 
             $(`#${year_series_list[i]}`).click(function() {
-                // e.preventDefault(); // necessary?
 
                 var selectedText = $(this).text();
 
@@ -237,57 +259,35 @@ $(function() {
                 $('.pickYearButton').text(selectedText);
                 $('.pickYearButton').data('pick_year', selectedText);
 
+                // Change year in series_array
+                changeYear(selectedText, series_array);
+
+                // if pick year button is toggled ON, then redraw chart with new year series
+                for (var i = 0; i < series_array.length; i++) {
+                    if (series_array[i]['name']=='pickYear') {
+                        if (series_array[i]['visible']==true) {
+                            d3.json(currentFilename, plotData);
+                        }
+                    }
+                }
+
             });
         }
 
+        // LISTENER FOR pickYearButton
         $('.pickYearButton').click(function(){
             $(this).toggleClass('active');
 
-            var buttonValue = $('.pickYearButton').text();
-            console.log("buttonValue", buttonValue);
-
-            console.log("y_accessor before", y_accessor);
-            console.log("color_map before", color_map);
-
-            // console.log("series_array BEFORE click", series_array);
-            series_array=toggleSeriesVisibility(buttonValue, series_array);
-            // console.log("series_array AFTER click", series_array);
-
-            y_accessor=getSeriesNames(series_array);
-            color_map=getSeriesOrders(series_array);
-            console.log("y_accessor after", y_accessor);
-            console.log("color_map after", color_map);
-
-            // NOTE: When adding/removing series, make sure to adjust the color map as well
-
-            var newChart_PickYear = Object.assign({}, multiple_with_brushing, {
-                x_accessor: x_accessor,
-                y_accessor: y_accessor,
-                legend: y_accessor,
-                custom_line_color_map: color_map,
-                max_data_size: y_accessor.length, 
-                data: dataWithStats,
-                title: `INCREMENT:${TEST_INCREMENTER}`
-            })
-
-            TEST_INCREMENTER += 1;
-
-            console.log("newChart_PickYear", newChart_PickYear)
-            console.log("newChart_PickYear.y_accessor",newChart_PickYear.y_accessor);
-            console.log("newChart_PickYear.legend PICKYEAR",newChart_PickYear.legend);
-            console.log("newChart_PickYear.max_data_size PICKYEAR",newChart_PickYear.max_data_size);
-            console.log("newChart_PickYear.data PICKYEAR",newChart_PickYear.data);
-
-            delete newChart_PickYear.xax_format;
-            MG.data_graphic(newChart_PickYear);
+            // var buttonValue = $('.pickYearButton').text();
+            // series_array=toggleSeriesVisibility(buttonValue, series_array);
             
-            newChart_PickYear = {};
-            console.log('newChart_PickYear AFTER DELETE', newChart_PickYear);
+            series_array=toggleSeriesVisibility('pickYear', series_array);
             
+            d3.json(currentFilename, plotData);
+
         });
 
-        // CHANGE 'DATA' IN ALL OF THE FOLLOWING TO 'dataWithStats'!!!!
-
+        // LISTENER FOR stats-buttons
         $('.stats-buttons button').click(function() {
            
             $(this).toggleClass('active');
@@ -295,45 +295,10 @@ $(function() {
             var selected_y_accessor = $(this).data('y_accessor');
             console.log('selected_y_accessor', selected_y_accessor);
 
-            console.log("y_accessor before", y_accessor);
-            console.log("color_map before", color_map);
-
-            console.log("series_array BEFORE click", series_array);
-
             series_array=toggleSeriesVisibility(selected_y_accessor, series_array);
 
-            console.log("series_array AFTER click", series_array);
+            d3.json(currentFilename, plotData);
 
-
-            y_accessor=getSeriesNames(series_array);
-            color_map=getSeriesOrders(series_array);
-            console.log("y_accessor after", y_accessor);
-            console.log("color_map after", color_map);
-
-
-            var newChart_Stats = Object.assign({}, multiple_with_brushing, {
-                x_accessor: x_accessor,
-                y_accessor: y_accessor,
-                legend: y_accessor,
-                custom_line_color_map: color_map,
-                max_data_size: y_accessor.length, 
-                data: dataWithStats,
-                title: `STATS INCREMENT:${TEST_INCREMENTER_STATS}`
-            })
-
-            TEST_INCREMENTER_STATS += 1;
-
-            console.log("newChart_Stats", newChart_Stats)
-            console.log("newChart_Stats.y_accessor",newChart_Stats.y_accessor);
-            console.log("newChart_Stats.legend",newChart_Stats.legend);
-            console.log("newChart_Stats.max_data_size",newChart_Stats.max_data_size);
-            console.log("newChart_Stats.data",newChart_Stats.data);
-
-            delete newChart_Stats.xax_format;
-            MG.data_graphic(newChart_Stats);
-            // delete newChart_Stats;
-            newChart_Stats = {};
-            console.log('newChart_Stats AFTER DELETE', newChart_Stats);           
         });
 
     });
@@ -343,13 +308,9 @@ $(function() {
     // MAIN FUNCTION TO PLOT THE CHART
     var plotData = function(data) {
    
-        // console.log("data @ START", data);
-
         data = MG.convert.date(data, 'Date');
 
         dataWithStats = calcSummaryStats(data, x_accessor);
-
-        // console.log('dataWithStats', dataWithStats);
         
         // CREATE AND INITIALIZE Y_ACCESSOR
         var y_accessor = [];
@@ -369,15 +330,11 @@ $(function() {
             data: dataWithStats
         })
 
-        // TEST_INCREMENTER += 1;
-
         console.log("newChart.y_accessor",newChart.y_accessor);
         
-        // console.log("newChart.data",newChart.data);
-
+        delete newChart.xax_format;
         MG.data_graphic(newChart);
 
-        // console.log("data @ END", data);
     }
 
 
